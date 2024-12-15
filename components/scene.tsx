@@ -16,6 +16,7 @@ import { useControls } from 'leva'
 import { RefObject, Suspense, useRef } from 'react'
 import * as THREE from 'three'
 import { CylinderGeometry } from 'three'
+import {motion} from 'framer-motion-3d'
 
 export default function Scene({ divRef }: { divRef: RefObject<HTMLDivElement> }) {
   const { cameraPosition, lightPosition } = useControls({
@@ -29,7 +30,6 @@ export default function Scene({ divRef }: { divRef: RefObject<HTMLDivElement> })
   const scroll = useScroll()
   const cameraRef = useRef<CameraControls>(null)
 
-  const floatHeightRef = useRef(0)
 
   useFrame(() => {
     const rTotal = scroll.range(0, 1)
@@ -50,7 +50,7 @@ export default function Scene({ divRef }: { divRef: RefObject<HTMLDivElement> })
 
     // console.log('botPosition', botPosition)
 
-    // cameraRef.current?.moveTo(0, rTotal * 8, -rTotal * 40, true)
+    cameraRef.current?.moveTo(0, rTotal * 8, -rTotal * 40, true)
 
     cameraRef.current?.lerpLookAt(
       //positionA
@@ -64,7 +64,7 @@ export default function Scene({ divRef }: { divRef: RefObject<HTMLDivElement> })
       //positionB
       8 * rm1 + 12 * rm2,
       8 * r1 + 20 * rm1 + 10 * r2 - 10 * rm2 - 6 * r3,
-      -40,
+      -40 -(20 *rm1) ,
       //targetB
       16 * -rm1 + 4 * rm2,
       14,
@@ -75,14 +75,14 @@ export default function Scene({ divRef }: { divRef: RefObject<HTMLDivElement> })
     )
     cameraRef.current?.zoomTo(1 - 0.7 * rm1 - 0.6 * rm2 - 0.5 * rm3 - 0.5 * rm4, true)
     /////////////first step //////////
-    if (!r3vis && !r4vis && (r1vis || r2vis)) {
-      floatHeightRef.current = r1 * 2
+    if (r1vis ) {
       botRef.current?.position.lerpVectors(
         new THREE.Vector3(0, 0, 0),
-        new THREE.Vector3(-0.5 - 5 * rm1, 2 + 2 * rm1, -12),
+        new THREE.Vector3(-0.5 , 2 , -12),
         r1
       )
-      if (r1vis)
+      console.log('swapppppppppppppp: ', r1, r2)
+      // if (r1vis )
         botRef.current?.rotation.set(
           (Math.PI / 180) * -40 * rm1,
           Math.PI * 2 * r1,
@@ -90,15 +90,14 @@ export default function Scene({ divRef }: { divRef: RefObject<HTMLDivElement> })
         )
     }
     /////////////2nd step //////////
-    if (!r1vis && !r4vis) {
-      floatHeightRef.current = r2 * 6
-      // floatRef.current.
+    else if (r2vis && botPosition) {
       botRef.current?.position.lerpVectors(
-        botPosition!,
-        new THREE.Vector3(0.5 + 8 * rm2, 6 - 8 * rm2, -22),
-        r2
+        new THREE.Vector3(-0.5, 2, -12),
+        new THREE.Vector3(0.5, 6, -22),
+        r2 - 1 + r1
       )
-      if (r2vis)
+      console.log('r1 r2: ',r1, r2)
+      // if (r2vis)
         botRef.current?.rotation.set(
           (Math.PI / 180) * -80 * rm2,
           Math.PI * 2 * r2,
@@ -111,15 +110,13 @@ export default function Scene({ divRef }: { divRef: RefObject<HTMLDivElement> })
 
     /////////////3rd step //////////
 
-    if (!r1vis && !r2vis) {
-      floatHeightRef.current = r3 * 4
-
+    else if (r3vis && botPosition) {
       botRef.current?.position.lerpVectors(
-        botPosition!,
-        new THREE.Vector3(-0.5 + -3 * rm3, 4 + 4 * rm3, -32 - 10 * rm3),
+        new THREE.Vector3(0.5, 6, -22),
+        new THREE.Vector3(-0.5 , 4 , -32),
         r3
       )
-      if (r3vis)
+      // if (r3vis)
         botRef.current?.rotation.set(
           (Math.PI / 180) * -80 * rm3,
           Math.PI * 2 * r3,
@@ -129,13 +126,13 @@ export default function Scene({ divRef }: { divRef: RefObject<HTMLDivElement> })
     }
 
     /////////////4th step //////////
-    if (!r1vis && !r2vis) {
+    else if (r4vis) {
       botRef.current?.position.lerpVectors(
-        botPosition!,
-        new THREE.Vector3(-0.5 + -3 * rm4, 4 + 4 * rm4, -48),
+        new THREE.Vector3(-0.5, 4, -32),
+        new THREE.Vector3(-0.5 , 4 , -48),
         r4
       )
-      if (r4vis)
+      // if (r4vis)
         botRef.current?.rotation.set(
           (Math.PI / 180) * -80 * rm4,
           Math.PI * 2 * r4,
@@ -193,15 +190,16 @@ export default function Scene({ divRef }: { divRef: RefObject<HTMLDivElement> })
         <Scroll>
           {/* <Float
             floatIntensity={4}
-            floatingRange={[-0.02 + floatHeightRef.current, 0.02 + floatHeightRef.current]}
             speed={6}
             ref={floatRef}
             position={[0, 0, 0]}
           > */}
-          <Robot
-            position={[0, 0, 0]}
-            ref={botRef}
-          />
+          <motion.group >
+            <Robot
+              position={[0, 0, 0]}
+              ref={botRef}
+            />
+          </motion.group>
           {/* </Float> */}
           <Tunnel />
         </Scroll>
