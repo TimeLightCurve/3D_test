@@ -10,23 +10,24 @@ import { useRef } from 'react'
 export default function Home() {
   const divRef = useRef<HTMLDivElement>(null)
   return (
-    <div className=" w-screen h-screen bg-black">
-      <div 
+    <div
       ref={divRef}
-      className="relative bg-black flex flex-col gap-4 justify-start items-center w-full h-screen  overflow-x-hidden font-kdam">
+      className=" w-screen h-[400vh] bg-black"
+    >
+      <div className="sticky top-10 bg-black flex flex-col gap-4 justify-start items-center w-full h-[100vh]  overflow-x-hidden font-kdam">
         <Leva collapsed />
         <Canvas
           shadows
-          // dpr={[1, 2]}
+          dpr={[1, 2]}
         >
-          <ScrollControls
+          {/* <ScrollControls
             pages={4}
             damping={0.3}
-          >
-            <Scene divRef={divRef}/>
-          </ScrollControls>
+          > */}
+          <Scene divRef={divRef} />
+          {/* </ScrollControls> */}
         </Canvas>
       </div>
     </div>
-  );
+  )
 }

@@ -8,7 +8,7 @@ import {
   MeshWobbleMaterial,
   PerspectiveCamera,
   Scroll,
-  useScroll,
+  // useScroll,
   Wireframe,
 } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
@@ -17,6 +17,10 @@ import { RefObject, Suspense, useRef } from 'react'
 import * as THREE from 'three'
 import { CylinderGeometry } from 'three'
 import {motion} from 'framer-motion-3d'
+import { easeInOut, useMotionValue, useMotionValueEvent, useScroll, useTransform } from 'motion/react'
+import { easeIn } from 'motion'
+import { useSmoothTransform } from './useSmoothTransform'
+
 
 export default function Scene({ divRef }: { divRef: RefObject<HTMLDivElement> }) {
   const { cameraPosition, lightPosition } = useControls({
@@ -27,119 +31,151 @@ export default function Scene({ divRef }: { divRef: RefObject<HTMLDivElement> })
 
   const botRef = useRef<THREE.Group<THREE.Object3DEventMap>>(null)
 //   const floatRef = useRef<THREE.Group<THREE.Object3DEventMap>>(null)
-  const scroll = useScroll()
+  // const scroll = useScroll()
   const cameraRef = useRef<CameraControls>(null)
 
+  const { scrollYProgress, scrollY} = useScroll()
 
+  // useMotionValueEvent(scrollY, 'change', (latest) => console.log('scrollY', latest))
+  // useMotionValueEvent(scrollYProgress, 'change', (latest) => console.log('scrollYProgress', latest))
+const spring = { stiffness: 600, damping: 30 }
+  const pz = useTransform(scrollYProgress, [0, 1 / 4, 2 / 4, 3 / 4, 1],[0,-12,-22,-32,-42],{ease:easeIn})
+  const pz2 = useSmoothTransform(scrollYProgress, spring, [0, -12, -22, -32, -42])
   useFrame(() => {
-    const rTotal = scroll.range(0, 1)
-    const r1 = scroll.range(0, 1 / 4)
-    const rm1 = scroll.curve(0, 1 / 4)
-    const r1vis = scroll.visible(0, 1 / 4)
-    const r2 = scroll.range(1 / 4, 1 / 4)
-    const rm2 = scroll.curve(1 / 4, 1 / 4)
-    const r2vis = scroll.visible(1 / 4, 1 / 4)
-    const r3 = scroll.range(2 / 4, 1 / 4)
-    const rm3 = scroll.curve(2 / 4, 1 / 4)
-    const r3vis = scroll.visible(2 / 4, 1 / 4)
-    const r4 = scroll.range(3 / 4, 1 / 4)
-    const rm4 = scroll.curve(3 / 4, 1 / 4)
-    const r4vis = scroll.visible(3 / 4, 1 / 4)
+  //   const rTotal = scroll.range(0, 1)
+  //   const r1 = scroll.range(0, 1 / 4)
+  //   const rm1 = scroll.curve(0, 1 / 4)
+  //   const r1vis = scroll.visible(0, 1 / 4)
+  //   const r2 = scroll.range(1 / 4, 1 / 4)
+  //   const rm2 = scroll.curve(1 / 4, 1 / 4)
+  //   const r2vis = scroll.visible(1 / 4, 1 / 4)
+  //   const r3 = scroll.range(2 / 4, 1 / 4)
+  //   const rm3 = scroll.curve(2 / 4, 1 / 4)
+  //   const r3vis = scroll.visible(2 / 4, 1 / 4)
+  //   const r4 = scroll.range(3 / 4, 1 / 4)
+  //   const rm4 = scroll.curve(3 / 4, 1 / 4)
+  //   const r4vis = scroll.visible(3 / 4, 1 / 4)
 
-    const botPosition = botRef.current?.position
 
-    // console.log('botPosition', botPosition)
+  //   // const botPosition = botRef.current?.position
 
-    cameraRef.current?.moveTo(0, rTotal * 8, -rTotal * 40, true)
+  //   // console.log('botPosition', botPosition)
 
-    cameraRef.current?.lerpLookAt(
-      //positionA
-      0,
-      0,
-      4,
-      //targetA
-      0,
-      3,
-      -10,
-      //positionB
-      8 * rm1 + 12 * rm2,
-      8 * r1 + 20 * rm1 + 10 * r2 - 10 * rm2 - 6 * r3,
-      -40 -(20 *rm1) ,
-      //targetB
-      16 * -rm1 + 4 * rm2,
-      14,
-      -50,
-      // lerp value
-      rTotal,
-      true
-    )
-    cameraRef.current?.zoomTo(1 - 0.7 * rm1 - 0.6 * rm2 - 0.5 * rm3 - 0.5 * rm4, true)
-    /////////////first step //////////
-    if (r1vis ) {
-      botRef.current?.position.lerpVectors(
-        new THREE.Vector3(0, 0, 0),
-        new THREE.Vector3(-0.5 , 2 , -12),
-        r1
-      )
-      console.log('swapppppppppppppp: ', r1, r2)
-      // if (r1vis )
-        botRef.current?.rotation.set(
-          (Math.PI / 180) * -40 * rm1,
-          Math.PI * 2 * r1,
-          (Math.PI / 180) * 10 * rm1
-        )
-    }
-    /////////////2nd step //////////
-    else if (r2vis && botPosition) {
-      botRef.current?.position.lerpVectors(
-        new THREE.Vector3(-0.5, 2, -12),
-        new THREE.Vector3(0.5, 6, -22),
-        r2 - 1 + r1
-      )
-      console.log('r1 r2: ',r1, r2)
-      // if (r2vis)
-        botRef.current?.rotation.set(
-          (Math.PI / 180) * -80 * rm2,
-          Math.PI * 2 * r2,
-          (Math.PI / 180) * -40 * rm2
-        )
-      // console.log('botPosition1', botPosition1)
-    }
-    // botRef.current?.matrixWorldNeedsUpdate
-    // botRef.current?.updateMatrixWorld
+    // cameraRef.current?.moveTo(0, rTotal * 8, -rTotal * 40, true)
 
-    /////////////3rd step //////////
 
-    else if (r3vis && botPosition) {
-      botRef.current?.position.lerpVectors(
-        new THREE.Vector3(0.5, 6, -22),
-        new THREE.Vector3(-0.5 , 4 , -32),
-        r3
-      )
-      // if (r3vis)
-        botRef.current?.rotation.set(
-          (Math.PI / 180) * -80 * rm3,
-          Math.PI * 2 * r3,
-          (Math.PI / 180) * 10 * r3
-        )
-      // console.log('botPosition2', botPosition2)
-    }
+   cameraRef.current?.lerpLookAt(
+     //positionA
+     0,
+     0,
+     4,
+     //targetA
+     0,
+     3,
+     -10,
+     //positionB
+     8,
+     4,
+     -40,
+     //targetB
+     -8,
+     -4,
+     -90,
+     // lerp value
+     scrollYProgress.get(),
+     true
+   )
 
-    /////////////4th step //////////
-    else if (r4vis) {
-      botRef.current?.position.lerpVectors(
-        new THREE.Vector3(-0.5, 4, -32),
-        new THREE.Vector3(-0.5 , 4 , -48),
-        r4
-      )
-      // if (r4vis)
-        botRef.current?.rotation.set(
-          (Math.PI / 180) * -80 * rm4,
-          Math.PI * 2 * r4,
-          (Math.PI / 180) * -40 * r4
-        )
-      // console.log('botPosition2', botPosition2)
-    }
+
+  //   cameraRef.current?.lerpLookAt(
+  //     //positionA
+  //     0,
+  //     0,
+  //     4,
+  //     //targetA
+  //     0,
+  //     3,
+  //     -10,
+  //     //positionB
+  //     8 * rm1 + 12 * rm2,
+  //     8 * r1 + 20 * rm1 + 10 * r2 - 10 * rm2 - 6 * r3,
+  //     -40 -(20 *rm1) ,
+  //     //targetB
+  //     16 * -rm1 + 4 * rm2,
+  //     14,
+  //     -50,
+  //     // lerp value
+  //     rTotal,
+  //     true
+  //   )
+  //   cameraRef.current?.zoomTo(1 - 0.7 * rm1 - 0.6 * rm2 - 0.5 * rm3 - 0.5 * rm4, true)
+  //   /////////////first step //////////
+  //   if (r1vis) {
+  //     botRef.current?.position.lerpVectors(
+  //       new THREE.Vector3(0, 0, 0),
+  //       new THREE.Vector3(-0.5 - 5 * rm1, 2 + 2 * rm1, -12),
+  //       r1
+  //     )
+      
+  //     if (r1vis)
+  //       botRef.current?.rotation.set(
+  //         (Math.PI / 180) * -40 * rm1,
+  //         Math.PI * 2 * r1,
+  //         (Math.PI / 180) * 10 * rm1
+  //       )
+  //   }
+  //   /////////////2nd step //////////
+  //  else if (r2vis) {
+  //     // floatRef.current.
+  //     botRef.current?.position.lerpVectors(
+  //       new THREE.Vector3(-0.5 , 2 , -12),
+  //       new THREE.Vector3(0.5 + 8 * rm2, 6 - 8 * rm2, -22),
+  //       r2
+  //     )
+  //     if (r2vis)
+  //       botRef.current?.rotation.set(
+  //         (Math.PI / 180) * -80 * rm2,
+  //         Math.PI * 2 * r2,
+  //         (Math.PI / 180) * -40 * rm2
+  //       )
+  //     // console.log('botPosition1', botPosition1)
+  //   }
+  //   // botRef.current?.matrixWorldNeedsUpdate
+  //   // botRef.current?.updateMatrixWorld
+
+  //   /////////////3rd step //////////
+
+  //  else if (r3vis) {
+
+  //     botRef.current?.position.lerpVectors(
+  //       new THREE.Vector3(0.5 , 6 , -22),
+  //       new THREE.Vector3(-0.5 + -3 * rm3, 4 + 4 * rm3, -32 - 10 * rm3),
+  //       r3 
+  //     )
+  //     if (r3vis)
+  //       botRef.current?.rotation.set(
+  //         (Math.PI / 180) * -80 * rm3,
+  //         Math.PI * 2 * r3,
+  //         (Math.PI / 180) * 10 * r3
+  //       )
+  //     // console.log('botPosition2', botPosition2)
+  //   }
+
+  //   /////////////4th step //////////
+  //   else if (r4vis) {
+  //     botRef.current?.position.lerpVectors(
+  //       new THREE.Vector3(-0.5 , 4 , -32 ),
+  //       new THREE.Vector3(-0.5 + -3 * rm4, 4 + 4 * rm4, -48),
+  //       r4 
+  //     )
+  //     if (r4vis)
+  //       botRef.current?.rotation.set(
+  //         (Math.PI / 180) * -80 * rm4,
+  //         Math.PI * 2 * r4,
+  //         (Math.PI / 180) * -40 * r4
+  //       )
+  //     // console.log('botPosition2', botPosition2)
+  //   }
   })
 
   return (
@@ -187,22 +223,22 @@ export default function Scene({ divRef }: { divRef: RefObject<HTMLDivElement> })
             three: 0,
           }}
         />
-        <Scroll>
-          {/* <Float
+        {/* <Scroll> */}
+        {/* <Float
             floatIntensity={4}
             speed={6}
             ref={floatRef}
             position={[0, 0, 0]}
           > */}
-          <motion.group >
-            <Robot
-              position={[0, 0, 0]}
-              ref={botRef}
-            />
-          </motion.group>
-          {/* </Float> */}
-          <Tunnel />
-        </Scroll>
+        <motion.group position={[0, 0, pz2]}>
+          <Robot
+            position={[0, 0, 0]}
+            ref={botRef}
+          />
+        </motion.group>
+        {/* </Float> */}
+        <Tunnel />
+        {/* </Scroll> */}
 
         {/* <OrbitControls /> */}
         <PerspectiveCamera
@@ -232,7 +268,7 @@ const Tunnel = () => {
     }
   >(null)
 
-  const scroll = useScroll()
+  // const scroll = useScroll()
 
   useFrame(() => {
     // const { gl, scene, camera } = state
@@ -240,12 +276,12 @@ const Tunnel = () => {
     //   cylinderRef.current.radiusTop = 2
     //   cylinderRef.current.radiusBottom = 8
     // }
-    const rt = scroll.range(0,1)
-    meshRef.current?.rotation.set(
-      -(Math.PI / 180) * 90,
-      (Math.PI / 180) * 45 - (Math.PI ) * rt,
-      0
-    )
+    // const rt = scroll.range(0,1)
+    // meshRef.current?.rotation.set(
+    //   -(Math.PI / 180) * 90,
+    //   (Math.PI / 180) * 45 - (Math.PI ) * rt,
+    //   0
+    // )
   })
 
   return (
